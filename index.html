@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分镜剧本生成器</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 15px 0; }
+        .tag-group { margin: 10px 0; }
+        .tag { 
+            display: inline-block; 
+            background: #e0e0e0; 
+            padding: 5px 10px; 
+            margin: 3px; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            font-size: 12px;
+        }
+        .tag:hover { background: #d0d0d0; }
+        .tag.selected { background: #4CAF50; color: white; }
+        textarea { width: 100%; height: 200px; margin: 10px 0; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>分镜剧本生成器</h1>
+    
+    <div class="section">
+        <h3>景别 (Shot Size)</h3>
+        <div class="tag-group">
+            <span class="tag" data-zh="特寫" data-en="Close-up">特寫 Close-up</span>
+            <span class="tag" data-zh="近景" data-en="Medium Close-up">近景 Medium Close-up</span>
+            <span class="tag" data-zh="中景" data-en="Medium Shot">中景 Medium Shot</span>
+            <span class="tag" data-zh="全景" data-en="Full Shot">全景 Full Shot</span>
+            <span class="tag" data-zh="遠景" data-en="Long Shot">遠景 Long Shot</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>角度 (Camera Angle)</h3>
+        <div class="tag-group">
+            <span class="tag" data-zh="平視" data-en="Eye-level">平視 Eye-level</span>
+            <span class="tag" data-zh="俯視" data-en="High-angle">俯視 High-angle</span>
+            <span class="tag" data-zh="仰視" data-en="Low-angle">仰視 Low-angle</span>
+            <span class="tag" data-zh="斜角" data-en="Dutch angle">斜角 Dutch angle</span>
+            <span class="tag" data-zh="過肩鏡頭" data-en="Over-the-shoulder">過肩鏡頭 Over-the-shoulder</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>運鏡方式 (Camera Movement)</h3>
+        <div class="tag-group">
+            <span class="tag" data-zh="推鏡" data-en="Zoom In">推鏡 Zoom In</span>
+            <span class="tag" data-zh="拉鏡" data-en="Zoom Out">拉鏡 Zoom Out</span>
+            <span class="tag" data-zh="搖鏡" data-en="Pan">搖鏡 Pan</span>
+            <span class="tag" data-zh="移鏡" data-en="Track">移鏡 Track</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>情緒表達 (Emotions)</h3>
+        <div class="tag-group">
+            <span class="tag" data-zh="喜悅" data-en="Happiness">喜悅 Happiness</span>
+            <span class="tag" data-zh="憤怒" data-en="Anger">憤怒 Anger</span>
+            <span class="tag" data-zh="悲傷" data-en="Sadness">悲傷 Sadness</span>
+            <span class="tag" data-zh="驚訝" data-en="Surprise">驚訝 Surprise</span>
+            <span class="tag" data-zh="恐懼" data-en="Fear">恐懼 Fear</span>
+            <span class="tag" data-zh="羞怯" data-en="Shyness">羞怯 Shyness</span>
+            <span class="tag" data-zh="厭惡" data-en="Disgust">厭惡 Disgust</span>
+            <span class="tag" data-zh="困惑" data-en="Confusion">困惑 Confusion</span>
+            <span class="tag" data-zh="專注" data-en="Concentration">專注 Concentration</span>
+            <span class="tag" data-zh="疲憊" data-en="Exhaustion">疲憊 Exhaustion</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>光影 (Lighting)</h3>
+        <div class="tag-group">
+            <span class="tag" data-zh="頂光" data-en="Top Light">頂光 Top Light</span>
+            <span class="tag" data-zh="側光" data-en="Side Light">側光 Side Light</span>
+            <span class="tag" data-zh="底光" data-en="Bottom Light">底光 Bottom Light</span>
+            <span class="tag" data-zh="逆光" data-en="Backlight">逆光 Backlight</span>
+            <span class="tag" data-zh="強硬光" data-en="Hard Light">強硬光 Hard Light</span>
+            <span class="tag" data-zh="柔和光" data-en="Soft Light">柔和光 Soft Light</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>生成的分镜剧本</h3>
+        <textarea id="output" placeholder="选择标签生成分镜剧本内容..."></textarea>
+        <br>
+        <button onclick="clearAll()">清空</button>
+        <button onclick="copyText()">复制</button>
+    </div>
+
+    <script>
+        const tags = document.querySelectorAll('.tag');
+        const output = document.getElementById('output');
+        let selectedTags = [];
+
+        tags.forEach(tag => {
+            tag.addEventListener('click', function() {
+                const zh = this.dataset.zh;
+                const en = this.dataset.en;
+                const value = { zh, en };
+                
+                if (this.classList.contains('selected')) {
+                    this.classList.remove('selected');
+                    selectedTags = selectedTags.filter(t => t.zh !== zh);
+                } else {
+                    this.classList.add('selected');
+                    selectedTags.push(value);
+                }
+                
+                updateOutput();
+            });
+        });
+
+        function updateOutput() {
+            const zhText = selectedTags.map(t => t.zh).join(' + ');
+            const enText = selectedTags.map(t => t.en).join(' + ');
+            output.value = zhText + '\n\n' + enText;
+        }
+
+        function clearAll() {
+            tags.forEach(tag => tag.classList.remove('selected'));
+            selectedTags = [];
+            output.value = '';
+        }
+
+        function copyText() {
+            output.select();
+            document.execCommand('copy');
+        }
+    </script>
+</body>
+</html>
